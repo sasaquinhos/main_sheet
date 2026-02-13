@@ -296,4 +296,44 @@ main {
     background-color: #f2f2f2;
 }
 
+/* 同期状態の表示 */
+#sync-status {
+    margin-left: 15px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.sync-idle {
+    color: #27ae60;
+    background: #eafaf1;
+}
+
+.sync-saving {
+    color: #f39c12;
+    background: #fef5e7;
+    animation: pulse 1s infinite;
+}
+
+.sync-error {
+    color: #e74c3c;
+    background: #fdedec;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
+}
+
 /* 集計行の色分け用（ドット表示などの工夫も可能だが今回はシンプルに文字のみ） */
