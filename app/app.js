@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncStatus = document.getElementById('sync-status');
 
     // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
-    const API_URL = "";
+    const API_URL = "https://script.google.com/macros/s/AKfycbz2ooGzDOuEm-VqcJ3DEj6xsHS2b1O2zCe0Ah0gKqO26EF0qViKpbJe8gzgwDFL-H61/exec";
 
     // 0. データの読込・保存
     async function loadData() {
