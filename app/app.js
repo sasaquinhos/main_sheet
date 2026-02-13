@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDragging = false;
     let lastProcessedSeatId = null;
     let dragAction = null; // 'paint' or 'erase'
+    let lastX = null;
+    let lastY = null;
 
     const seatGrid = document.getElementById('seat-grid');
     const groupButtons = document.querySelectorAll('.group-btn');
@@ -132,24 +134,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- タッチ操作 (スマホ) ---
         div.addEventListener('touchstart', (e) => {
+            // タッチ開始時にマウスイベントの擬似発火を防止
+            e.preventDefault();
             isDragging = true;
-            handleSeatClick(id, true); // 開始フラグ
+            const touch = e.touches[0];
+            lastX = touch.clientX;
+            lastY = touch.clientY;
+            handleSeatClick(id, true);
         }, { passive: false });
 
         return div;
     }
 
-    // タッチムーブ（指の下にある要素を特定して塗りつぶす）
+    // 指定された座標の座席を処理
+    function processPoint(x, y) {
+        const target = document.elementFromPoint(x, y);
+        if (target && target.classList.contains('seat')) {
+            handleSeatClick(target.id);
+        }
+    }
+
+    // 前回の座標から現在の座標までを補完して処理
+    function processLine(x1, y1, x2, y2) {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        const steps = Math.ceil(dist / 10); // 10pxごとにサンプリング
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = x1 + (x2 - x1) * t;
+            const y = y1 + (y2 - y1) * t;
+            processPoint(x, y);
+        }
+    }
+
+    // タッチムーブ（補完処理付き）
     seatGrid.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
 
         const touch = e.touches[0];
-        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const currX = touch.clientX;
+        const currY = touch.clientY;
 
-        if (target && target.classList.contains('seat')) {
-            handleSeatClick(target.id);
+        if (lastX !== null && lastY !== null) {
+            processLine(lastX, lastY, currX, currY);
+        } else {
+            processPoint(currX, currY);
         }
+
+        lastX = currX;
+        lastY = currY;
     }, { passive: false });
 
     // ドラッグ状態のリセット
@@ -157,6 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = false;
         lastProcessedSeatId = null;
         dragAction = null;
+        lastX = null;
+        lastY = null;
     }
 
     window.addEventListener('mouseup', resetDrag);
