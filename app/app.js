@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentGroup = null;
     let seatData = {}; // {seatId: group}
     let isDragging = false;
+    let lastProcessedSeatId = null;
+    let dragAction = null; // 'paint' or 'erase'
 
     const seatGrid = document.getElementById('seat-grid');
     const groupButtons = document.querySelectorAll('.group-btn');
@@ -117,9 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- マウス操作 ---
         div.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // テキスト選択などを防止
+            e.preventDefault();
             isDragging = true;
-            handleSeatClick(id);
+            handleSeatClick(id, true); // 開始フラグ
         });
 
         div.addEventListener('mouseenter', () => {
@@ -130,34 +132,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- タッチ操作 (スマホ) ---
         div.addEventListener('touchstart', (e) => {
-            // e.preventDefault(); // スクロール抑止は CSS (touch-action) で行うが、念のため
             isDragging = true;
-            handleSeatClick(id);
+            handleSeatClick(id, true); // 開始フラグ
         }, { passive: false });
 
         return div;
     }
 
     // タッチムーブ（指の下にある要素を特定して塗りつぶす）
-    // グリッドコンテナまたは window で監視
     seatGrid.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-
-        // デフォルトのスクロール動作を抑制
         e.preventDefault();
 
         const touch = e.touches[0];
         const target = document.elementFromPoint(touch.clientX, touch.clientY);
 
-        // 'seat' クラスを持つ要素のみを処理対象とする（ラベルは無視）
         if (target && target.classList.contains('seat')) {
             handleSeatClick(target.id);
         }
     }, { passive: false });
 
-    seatGrid.addEventListener('touchend', () => {
+    // ドラッグ状態のリセット
+    function resetDrag() {
         isDragging = false;
-    });
+        lastProcessedSeatId = null;
+        dragAction = null;
+    }
+
+    window.addEventListener('mouseup', resetDrag);
+    seatGrid.addEventListener('touchend', resetDrag);
+    seatGrid.addEventListener('touchcancel', resetDrag);
 
     // 2. グループ選択
     groupButtons.forEach(btn => {
@@ -183,24 +187,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 3. 座席操作処理 (B-H用)
-    function handleSeatClick(seatId, forceResetDrag = false) {
-        if (!currentGroup) {
-            // ドラッグ中はアラートを出さない（操作性を損なうため）
-            if (forceResetDrag) isDragging = false;
-            return;
+    function handleSeatClick(seatId, isStartOfAction = false) {
+        if (!currentGroup || currentGroup === 'A') return;
+
+        // 同一ドラッグ内での重複処理防止
+        if (!isStartOfAction && seatId === lastProcessedSeatId) return;
+        lastProcessedSeatId = seatId;
+
+        // ドラッグ開始時に「塗る」か「消す」かを決定
+        if (isStartOfAction) {
+            dragAction = (seatData[seatId] === currentGroup) ? 'erase' : 'paint';
         }
 
-        // Aグループはクリックでは動作しない（仕様）
-        if (currentGroup === 'A') {
-            return;
-        }
-
-        // すでに現在のグループが設定されている場合は解除（トグル）
-        // それ以外（空または別グループ）の場合は現在のグループで上書き
-        if (seatData[seatId] === currentGroup) {
-            updateSeat(seatId, null);
+        if (dragAction === 'erase') {
+            // 消しゴムモード: 現在のグループなら消す
+            if (seatData[seatId] === currentGroup) {
+                updateSeat(seatId, null);
+            }
         } else {
-            updateSeat(seatId, currentGroup);
+            // 塗りモード: 現在のグループでなければ塗る（上書き含む）
+            if (seatData[seatId] !== currentGroup) {
+                updateSeat(seatId, currentGroup);
+            }
         }
     }
 
