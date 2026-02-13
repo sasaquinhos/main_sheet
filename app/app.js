@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentGroupDisplay = document.getElementById('current-group-display');
     const colCountInputA = document.getElementById('col-count-a');
     const syncStatus = document.getElementById('sync-status');
+    const clearAllBtn = document.getElementById('clear-all-btn');
 
     // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
     const API_URL = "https://script.google.com/macros/s/AKfycbz2ooGzDOuEm-VqcJ3DEj6xsHS2b1O2zCe0Ah0gKqO26EF0qViKpbJe8gzgwDFL-H61/exec";
@@ -252,6 +253,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSeat(seatId, currentGroup);
             }
         }
+    }
+
+    // すべての座席をクリア
+    function clearAllSeats() {
+        if (!confirm('すべての座席選択を解除してもよろしいですか？')) return;
+
+        // データのリセット
+        seatData = {};
+
+        // 表示のリセット
+        const seats = document.querySelectorAll('.seat');
+        seats.forEach(seat => {
+            GROUPS.forEach(g => seat.classList.remove(`group-${g}`));
+        });
+
+        updateSummary();
+        requestSave();
+    }
+
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllSeats);
     }
 
     // 座席の状態を更新
