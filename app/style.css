@@ -372,7 +372,7 @@ main {
         /* ラベル1+22列+通路1+22列 = 46列 */
         /* グリッド全体を縮小 */
         grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px);
-        grid-template-rows: 20px repeat(9, 12px);
+        grid-template-rows: 35px repeat(9, 12px);
         gap: 2px;
         min-width: unset;
         /* 横幅固定を解除 */
@@ -384,7 +384,15 @@ main {
     }
 
     .grid-label {
-        font-size: 9px;
+        font-size: 8px;
+    }
+
+    .col-label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        height: 35px;
+        justify-content: flex-start;
+        padding-bottom: 2px;
     }
 
     /* 22列目と23列目の間の通路位置調整 */
