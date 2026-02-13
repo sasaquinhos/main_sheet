@@ -297,13 +297,52 @@ main {
 }
 
 /* 同期状態の表示 */
+#status-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    padding: 10px 80px;
+    /* ボタン分の余白を確保 */
+}
+
 #sync-status {
-    margin-left: 15px;
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 4px;
     transition: all 0.3s;
     display: inline-block;
+}
+
+#clear-all-btn {
+    position: absolute;
+    right: 10px;
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+#clear-all-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    #status-message {
+        gap: 8px;
+    }
+
+    #clear-all-btn {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
 }
 
 .sync-idle {
