@@ -337,3 +337,58 @@ main {
 }
 
 /* 集計行の色分け用（ドット表示などの工夫も可能だが今回はシンプルに文字のみ） */
+
+/* スマホ向け調整 */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .group-selector {
+        gap: 5px;
+    }
+
+    .group-btn {
+        padding: 8px 12px;
+        min-width: 80px;
+        font-size: 13px;
+    }
+
+    .count {
+        font-size: 12px;
+        padding: 1px 6px;
+    }
+
+    .total-bh {
+        margin-left: 10px;
+        padding-left: 10px;
+    }
+
+    .seat-grid {
+        /* ラベル1+22列+通路1+22列 = 46列 */
+        /* グリッド全体を縮小 */
+        grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px);
+        grid-template-rows: 20px repeat(9, 12px);
+        gap: 2px;
+        min-width: unset;
+        /* 横幅固定を解除 */
+    }
+
+    .seat {
+        width: 12px;
+        height: 12px;
+    }
+
+    .grid-label {
+        font-size: 9px;
+    }
+
+    /* 22列目と23列目の間の通路位置調整 */
+    .seat-grid>div:nth-child(45n+24) {
+        grid-column-start: 25;
+    }
+}
