@@ -196,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('mouseup', resetDrag);
-    seatGrid.addEventListener('touchend', resetDrag);
-    seatGrid.addEventListener('touchcancel', resetDrag);
+    window.addEventListener('touchend', resetDrag);
+    window.addEventListener('touchcancel', resetDrag);
 
     // 2. グループ選択
     groupButtons.forEach(btn => {
@@ -226,14 +226,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSeatClick(seatId, isStartOfAction = false) {
         if (!currentGroup || currentGroup === 'A') return;
 
-        // 同一ドラッグ内での重複処理防止
-        if (!isStartOfAction && seatId === lastProcessedSeatId) return;
-        lastProcessedSeatId = seatId;
+        // 同一ドラッグ内（および瞬間の重複イベント）での同一マスの多重処理を徹底防止
+        // これにより、タッチとマウスの二重発火による意図しないトグル（反転）を防ぐ
+        if (seatId === lastProcessedSeatId) return;
 
         // ドラッグ開始時に「塗る」か「消す」かを決定
         if (isStartOfAction) {
+            isDragging = true;
             dragAction = (seatData[seatId] === currentGroup) ? 'erase' : 'paint';
         }
+
+        // ドラッグ中かつモードが決まっている場合のみ処理
+        if (!isDragging || !dragAction) return;
+
+        lastProcessedSeatId = seatId;
 
         if (dragAction === 'erase') {
             // 消しゴムモード: 現在のグループなら消す
@@ -241,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSeat(seatId, null);
             }
         } else {
-            // 塗りモード: 現在のグループでなければ塗る（上書き含む）
+            // 塗りモード: 現在のグループでなければ塗る（他のグループの上書きを含む）
             if (seatData[seatId] !== currentGroup) {
                 updateSeat(seatId, currentGroup);
             }
