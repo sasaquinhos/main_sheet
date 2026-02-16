@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 反映
                 Object.entries(seatData).forEach(([id, group]) => {
                     const el = document.getElementById(id);
-                    if (el) el.classList.add(`group-${group}`);
+                    if (el) {
+                        el.classList.add(`group-${group}`);
+                        el.dataset.color = group; // data-color属性も設定
+                    }
                 });
                 updateSummary();
             }
@@ -231,10 +234,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // これにより、タッチとマウスの二重発火による意図しないトグル（反転）を防ぐ
         if (seatId === lastProcessedSeatId) return;
 
+        const seatEl = document.getElementById(seatId);
+        if (!seatEl) return;
+
+        // 現在のマスの色を取得（data-color属性から）
+        const currentColor = seatEl.dataset.color || '';
+
         // ドラッグ開始時に「塗る」か「消す」かを決定
         if (isStartOfAction) {
             isDragging = true;
-            dragAction = (seatData[seatId] === currentGroup) ? 'erase' : 'paint';
+            // 選択中の色と同じ場合は「消す」、空の場合は「塗る」
+            dragAction = (currentColor === currentGroup) ? 'erase' : 'paint';
         }
 
         // ドラッグ中かつモードが決まっている場合のみ処理
@@ -243,15 +253,16 @@ document.addEventListener('DOMContentLoaded', () => {
         lastProcessedSeatId = seatId;
 
         if (dragAction === 'erase') {
-            // 消しゴムモード: 現在のグループなら消す
-            if (seatData[seatId] === currentGroup) {
+            // 消しゴムモード: 選択中の色と同じ場合のみ消す
+            if (currentColor === currentGroup) {
                 updateSeat(seatId, null);
             }
         } else {
-            // 塗りモード: 現在のグループでなければ塗る（他のグループの上書きを含む）
-            if (seatData[seatId] !== currentGroup) {
+            // 塗りモード: 空のマスのみ塗る（他の色が塗られている場合はロック）
+            if (currentColor === '') {
                 updateSeat(seatId, currentGroup);
             }
+            // currentColor !== '' && currentColor !== currentGroup の場合は何もしない（ロック）
         }
     }
 
@@ -266,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const seats = document.querySelectorAll('.seat');
         seats.forEach(seat => {
             GROUPS.forEach(g => seat.classList.remove(`group-${g}`));
+            seat.dataset.color = ''; // data-color属性もクリア
         });
 
         updateSummary();
@@ -273,7 +285,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', clearAllSeats);
+        // PC/スマホ両方で確実に反応させるため pointerdown を使用
+        clearAllBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            clearAllSeats();
+        });
     }
 
     // 座席の状態を更新
@@ -287,8 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 新しいクラスを追加
         if (group) {
             seatEl.classList.add(`group-${group}`);
+            seatEl.dataset.color = group; // data-color属性に色を保存
             seatData[seatId] = group;
         } else {
+            seatEl.dataset.color = ''; // data-color属性をクリア
             delete seatData[seatId];
         }
 
