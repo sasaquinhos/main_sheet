@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentGroupDisplay = document.getElementById('current-group-display');
     const colCountInputA = document.getElementById('col-count-a');
     const syncStatus = document.getElementById('sync-status');
+    const lockBtn = document.getElementById('lock-btn');
     const clearAllBtn = document.getElementById('clear-all-btn');
 
     // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
@@ -215,6 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
             currentGroup = group;
             currentGroupDisplay.textContent = `グループ ${group}`;
 
+            // ロック解除（色を選択した時点で自動的にロック解除）
+            if (lockBtn) {
+                lockBtn.classList.remove('locked');
+                lockBtn.textContent = 'ロック';
+            }
+
             // Aグループ特有の表示制御
             if (group === 'A') {
                 specialInputA.classList.remove('hidden');
@@ -228,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. 座席操作処理 (B-H用)
     function handleSeatClick(seatId, isStartOfAction = false) {
+        // ロック状態（currentGroupがnullまたは空）の場合は何もしない
         if (!currentGroup || currentGroup === 'A') return;
 
         // 同一ドラッグ内（および瞬間の重複イベント）での同一マスの多重処理を徹底防止
@@ -264,6 +272,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // currentColor !== '' && currentColor !== currentGroup の場合は何もしない（ロック）
         }
+    }
+
+    // ロックボタンの処理
+    if (lockBtn) {
+        lockBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+
+            // ロック状態に入る
+            currentGroup = null;
+            currentGroupDisplay.textContent = 'ロック中';
+
+            // すべてのグループボタンの選択を解除
+            groupButtons.forEach(b => b.classList.remove('active'));
+
+            // Aグループの入力欄を非表示
+            specialInputA.classList.add('hidden');
+
+            // ロックボタンの表示を変更
+            lockBtn.classList.add('locked');
+            lockBtn.textContent = 'ロック中';
+        });
     }
 
     // すべての座席をクリア
