@@ -315,6 +315,31 @@ main {
     display: inline-block;
 }
 
+#lock-btn {
+    position: absolute;
+    right: 70px;
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #3498db;
+    color: #3498db;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+#lock-btn:hover {
+    background: #3498db;
+    color: white;
+}
+
+#lock-btn.locked {
+    background: #e67e22;
+    color: white;
+    border-color: #e67e22;
+}
+
 #clear-all-btn {
     position: absolute;
     right: 10px;
@@ -334,16 +359,6 @@ main {
     color: white;
 }
 
-@media (max-width: 768px) {
-    #status-message {
-        gap: 8px;
-    }
-
-    #clear-all-btn {
-        padding: 3px 8px;
-        font-size: 11px;
-    }
-}
 
 .sync-idle {
     color: #27ae60;
@@ -379,12 +394,25 @@ main {
 
 /* スマホ向け調整 */
 @media (max-width: 768px) {
-    body {
-        padding: 5px;
+    #status-message {
+        gap: 8px;
+        padding: 10px 110px 10px 10px;
+        justify-content: center;
     }
 
-    main {
-        padding: 10px;
+    #lock-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        right: 55px;
+        z-index: 100;
+    }
+
+    #clear-all-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+        right: 5px;
+        z-index: 100;
+        /* 確実に最前面へ */
     }
 
     .group-selector {
