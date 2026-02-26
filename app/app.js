@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
 
             currentGroup = group;
-            currentGroupDisplay.textContent = `グループ ${group}`;
+            currentGroupDisplay.textContent = group === 'A' ? '中央' : `グループ ${group}`;
 
             // ロック解除（色を選択した時点で自動的にロック解除）
             if (lockBtn) {
