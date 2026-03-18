@@ -2,7 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROWS = 9;
     const COLS_PER_BLOCK = 22;
     const TOTAL_COLS = COLS_PER_BLOCK * 2;
-    const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'H'];
+    const GROUP_NAMES = {
+        'A': '中央',
+        'B': '連合(前)',
+        'C': 'アポロ',
+        'D': 'ボアソルチ',
+        'E': '連合(後)',
+        'F': 'ショコラ',
+        'H': 'バースト'
+    };
 
     let currentGroup = null;
     let seatData = {}; // {seatId: group}
@@ -214,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
 
             currentGroup = group;
-            currentGroupDisplay.textContent = group === 'A' ? '中央' : `グループ ${group}`;
+            currentGroupDisplay.textContent = GROUP_NAMES[group] || 'なし';
 
             // ロック解除（色を選択した時点で自動的にロック解除）
             if (lockBtn) {
@@ -305,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 表示のリセット
         const seats = document.querySelectorAll('.seat');
         seats.forEach(seat => {
-            GROUPS.forEach(g => seat.classList.remove(`group-${g}`));
+            ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seat.classList.remove(`group-${g}`));
             seat.dataset.color = ''; // data-color属性もクリア
         });
 
@@ -326,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const seatEl = document.getElementById(seatId);
         if (!seatEl) return;
 
-        // 既存のクラスを削除
-        GROUPS.forEach(g => seatEl.classList.remove(`group-${g}`));
+        // 既存のクラスを削除 ('G'も含めて全削除)
+        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seatEl.classList.remove(`group-${g}`));
 
         // 新しいクラスを追加
         if (group) {
