@@ -200,6 +200,13 @@ main {
     /* ドラッグ中のテキスト選択防止 */
 }
 
+/* 拡張時: 10行 × 69列 (ラベル1 + 22列 + 通路1 + 22列 + 通路1 + 22列) */
+.seat-grid.expanded {
+    grid-template-columns: 30px repeat(22, 20px) 20px repeat(22, 20px) 20px repeat(22, 20px);
+    min-width: 1650px;
+    justify-content: start;
+}
+
 /* ラベルのスタイル */
 .grid-label {
     display: flex;
@@ -222,8 +229,18 @@ main {
 /* 22列目と23列目の間の通路（Block 2 の開始要素を 25カラム目から開始させる） */
 /* 1行につき 45要素（ラベル含め）あるため、24番目の要素が Block 2 の開始 */
 /* ヘッダー行および各座席行の 24番目の要素に適用 */
-.seat-grid>div:nth-child(45n+24) {
+/* 22列目と23列目の間の通路 */
+.seat-grid:not(.expanded)>div:nth-child(45n+24) {
     grid-column-start: 25;
+}
+
+/* 拡張時: 通路位置の調整 (1列ラベル+66列 = 67要素/行) */
+.seat-grid.expanded>div:nth-child(67n+24) {
+    grid-column-start: 25;
+}
+
+.seat-grid.expanded>div:nth-child(67n+46) {
+    grid-column-start: 48;
 }
 
 .seat {
@@ -329,6 +346,25 @@ main {
     font-weight: bold;
 }
 
+#expand-btn {
+    position: absolute;
+    right: 150px;
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #9b59b6;
+    color: #9b59b6;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+#expand-btn:hover {
+    background: #9b59b6;
+    color: white;
+}
+
 #lock-btn:hover {
     background: #3498db;
     color: white;
@@ -396,8 +432,15 @@ main {
 @media (max-width: 768px) {
     #status-message {
         gap: 8px;
-        padding: 10px 110px 10px 10px;
+        padding: 10px 170px 10px 10px; /* 110 -> 170 */
         justify-content: center;
+    }
+
+    #expand-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        right: 110px;
+        z-index: 100;
     }
 
     #lock-btn {
@@ -463,7 +506,21 @@ main {
     }
 
     /* 22列目と23列目の間の通路位置調整 */
-    .seat-grid>div:nth-child(45n+24) {
+    .seat-grid:not(.expanded)>div:nth-child(45n+24) {
         grid-column-start: 25;
+    }
+
+    .seat-grid.expanded {
+        grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px) 12px repeat(22, 12px);
+        min-width: 836px;
+        justify-content: start;
+    }
+
+    .seat-grid.expanded>div:nth-child(67n+24) {
+        grid-column-start: 25;
+    }
+
+    .seat-grid.expanded>div:nth-child(67n+46) {
+        grid-column-start: 48;
     }
 }
