@@ -1,618 +1,496 @@
-:root {
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-color: #333;
-    --border-color: #ddd;
-
-    /* グループ色 */
-    --color-a: #888888;
-    /* 中央: グレー */
-    --color-b: #f1c40f;
-    /* Sun spire: 黄 */
-    --color-c: #50c878;
-    /* ボアソルチ: エメラルドグリーン */
-    --color-d: #3498db;
-    /* コリドラス: 青 */
-    --color-e: #ffb6c1;
-    /* ショコラ: ピンク */
-    --color-f: #adff2f;
-    /* 太陽軒・TS1: 黄緑 */
-    --color-g: #ff8c00;
-    /* FORZA: オレンジ */
-    --color-h: #228b22;
-    /* X: 緑 */
-    --color-i: #e74c3c;
-    /* KSWフォース: 赤 */
-    --color-j: #444444;
-    /* お立ち台: 濃いグレー */
-    --color-none: #ecf0f1;
-    /* 未選択 */
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 20px;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 15px; /* 30px -> 15px */
-}
-
-
-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* コントロールエリア */
-#controls {
-    margin-bottom: 15px; /* 30px -> 15px */
-    padding-bottom: 10px; /* 20px -> 10px */
-    border-bottom: 2px solid var(--border-color);
-}
-
-
-.group-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
-    direction: rtl;
-    /* 右から左への流れを作る */
-}
-
-/* 子要素（テキスト等）の方向を戻す */
-.group-item {
-    direction: ltr;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.group-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s, opacity 0.2s;
-    background-color: var(--color-none);
-    min-width: 100px;
-}
-
-.count {
-    font-size: 14px;
-    font-weight: bold;
-    color: #555;
-    background: #eee;
-    padding: 2px 10px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-}
-
-.total-bh {
-    margin-left: 20px;
-    border-left: 2px solid #ddd;
-    padding-left: 20px;
-    white-space: nowrap;
-}
-
-/* PC版: 合計を右端（フローの先頭）に持ってくる */
-@media (min-width: 769px) {
-    .total-bh {
-        order: -1;
-    }
-}
-
-.total-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: #777;
-    margin-bottom: 5px;
-}
-
-#count-total-BH {
-    background-color: #333;
-    color: #fff;
-    border-color: #333;
-}
-
-.group-btn:hover {
-    transform: translateY(-2px);
-    opacity: 0.9;
-}
-
-.group-btn.active {
-    outline: 3px solid #333;
-    transform: scale(1.05);
-}
-
-/* ボタン各色 */
-.group-btn[data-group="A"] {
-    background-color: var(--color-a);
-    color: white;
-}
-
-.group-btn[data-group="B"] {
-    background-color: var(--color-b);
-    color: #333;
-}
-
-.group-btn[data-group="C"] {
-    background-color: var(--color-c);
-    color: white;
-}
-
-.group-btn[data-group="D"] {
-    background-color: var(--color-d);
-    color: white;
-}
-
-.group-btn[data-group="E"] {
-    background-color: var(--color-e);
-    color: #333;
-}
-
-.group-btn[data-group="F"] {
-    background-color: var(--color-f);
-    color: #333;
-}
-
-.group-btn[data-group="G"] {
-    background-color: var(--color-g);
-    color: #333;
-}
-
-.group-btn[data-group="H"] {
-    background-color: var(--color-h);
-    color: white;
-}
-
-.group-btn[data-group="I"] {
-    background-color: var(--color-i);
-    color: white;
-}
-
-#special-input-a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding: 15px;
-    background: #f0f0f0;
-    border-radius: 8px;
-}
-
-#special-input-a.hidden {
-    display: none;
-}
-
-#status-message {
-    text-align: center;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-/* 座席グリッド */
-#seat-map-container {
-    overflow-x: auto;
-    margin-bottom: 40px;
-    padding: 10px;
-}
-
-.seat-grid {
-    display: grid;
-    /* デフォルト: 10行 (ラベル1 + 座席9) × 46列 (ラベル1 + 22列 + 通路1列 + 22列) */
-    grid-template-columns: 30px repeat(22, 20px) 20px repeat(22, 20px);
-    grid-template-rows: 25px repeat(9, 20px);
-    gap: 4px;
-    justify-content: start; /* center -> start: オーバーフロー時に左側が消えるのを防ぐ */
-    min-width: 1150px;
-
-    /* スマホでのドラッグ中のスクロールを防止 */
-    touch-action: none;
-    /* ドラッグ中のテキスト選択防止 */
-    user-select: none;
-}
-
-/* 拡張時: 10行 × 69列 (ラベル1 + 22列 + 通路1 + 22列 + 通路1 + 22列) */
-.seat-grid.expanded {
-    grid-template-columns: 30px repeat(22, 20px) 20px repeat(22, 20px) 20px repeat(22, 20px);
-    min-width: 1700px;
-}
-
-/* ロック中は手動スクロールを許可 */
-.seat-grid.is-locked {
-    touch-action: auto;
-}
-
-
-/* ラベルのスタイル */
-.grid-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: #777;
-    font-weight: bold;
-    /* ラベル部分は常に手動スクロール（パン）を許可 */
-    touch-action: pan-x pan-y;
-}
-
-.col-label {
-    padding-bottom: 5px;
-}
-
-.row-label {
-    padding-right: 5px;
-}
-
-/* 22列目と23列目の間の通路（Block 2 の最初の要素を調整） */
-/* 22列目と23列目の間の通路（Block 2 の開始要素を 25カラム目から開始させる） */
-/* 1行につき 45要素（ラベル含め）あるため、24番目の要素が Block 2 の開始 */
-/* ヘッダー行および各座席行の 24番目の要素に適用 */
-/* 22列目と23列目の間の通路 */
-.seat-grid:not(.expanded)>div:nth-child(45n+24) {
-    grid-column-start: 25;
-}
-
-/* 拡張時: 通路位置の調整 (1列ラベル+66列 = 67要素/行) */
-.seat-grid.expanded>div:nth-child(67n+24) {
-    grid-column-start: 25;
-}
-
-.seat-grid.expanded>div:nth-child(67n+46) {
-    grid-column-start: 48;
-}
-
-
-
-.seat {
-    width: 20px;
-    height: 20px;
-    background-color: var(--color-none);
-    border: 1px solid #bdc3c7;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.seat:hover {
-    filter: brightness(0.9);
-}
-
-/* 各グループの色クラス */
-.seat.group-A {
-    background-color: var(--color-a);
-}
-
-.seat.group-B {
-    background-color: var(--color-b);
-}
-
-.seat.group-C {
-    background-color: var(--color-c);
-}
-
-.seat.group-D {
-    background-color: var(--color-d);
-}
-
-.seat.group-E {
-    background-color: var(--color-e);
-}
-
-.seat.group-F {
-    background-color: var(--color-f);
-}
-
-.seat.group-G {
-    background-color: var(--color-g);
-}
-
-.seat.group-H {
-    background-color: var(--color-h);
-}
-
-.seat.group-I {
-    background-color: var(--color-i);
-}
-
-.seat.group-J {
-    background-color: var(--color-j);
-}
-
-/* 集計テーブル */
-#summary-container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-#summary-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-#summary-table th,
-#summary-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-#summary-table th {
-    background-color: #f2f2f2;
-}
-
-/* 同期状態の表示 */
-#status-message {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end; /* center -> flex-end */
-    gap: 15px;
-    position: relative;
-    padding: 10px 400px 10px 10px;
-    /* ボタン4つ分 (お立ち台、拡張、ロック、クリア) の余白 */
-}
-
-
-
-
-#sync-status {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    transition: all 0.3s;
-    display: inline-block;
-}
-
-#podium-btn {
-    position: absolute;
-    right: 230px;
-
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid var(--color-j);
-    color: white;
-    background: var(--color-j);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: bold;
-}
-
-#podium-btn:hover {
-    filter: brightness(1.1);
-}
-
-#expand-btn {
-    position: absolute;
-    right: 150px;
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid #9b59b6;
-    color: #9b59b6;
-    background: transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: bold;
-}
-
-#expand-btn:hover {
-    background: #9b59b6;
-    color: white;
-}
-
-#lock-btn {
-    position: absolute;
-    right: 70px;
-
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid #3498db;
-    color: #3498db;
-    background: transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: bold;
-}
-
-#lock-btn:hover {
-    background: #3498db;
-    color: white;
-}
-
-#lock-btn.locked {
-    background: #e67e22;
-    color: white;
-    border-color: #e67e22;
-}
-
-#clear-all-btn {
-    position: absolute;
-    right: 10px;
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid #e74c3c;
-    color: #e74c3c;
-    background: transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: bold;
-}
-
-#clear-all-btn:hover {
-    background: #e74c3c;
-    color: white;
-}
-
-
-.sync-idle {
-    color: #27ae60;
-    background: #eafaf1;
-}
-
-.sync-saving {
-    color: #f39c12;
-    background: #fef5e7;
-    animation: pulse 1s infinite;
-}
-
-.sync-error {
-    color: #e74c3c;
-    background: #fdedec;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.6;
+document.addEventListener('DOMContentLoaded', () => {
+    const ROWS = 9;
+    const COLS_PER_BLOCK = 22;
+    const TOTAL_COLS = COLS_PER_BLOCK * 2;
+    const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'H'];
+    const GROUP_NAMES = {
+        'A': '中央',
+        'B': '連合(前)',
+        'C': 'アポロ',
+        'D': 'ボアソルチ',
+        'E': '連合(後)',
+        'F': 'ショコラ',
+        'H': 'kyu'
+    };
+
+    let currentGroup = null;
+    let seatData = {}; // {seatId: group}
+    let isDragging = false;
+    let lastProcessedSeatId = null;
+    let dragAction = null; // 'paint' or 'erase'
+    let lastX = null;
+    let lastY = null;
+    let isExpanded = false;
+
+    const seatGrid = document.getElementById('seat-grid');
+    const groupButtons = document.querySelectorAll('.group-btn');
+    const specialInputA = document.getElementById('special-input-a');
+    const currentGroupDisplay = document.getElementById('current-group-display');
+    const colCountInputA = document.getElementById('col-count-a');
+    const syncStatus = document.getElementById('sync-status');
+    const lockBtn = document.getElementById('lock-btn');
+    const clearAllBtn = document.getElementById('clear-all-btn');
+    const expandBtn = document.getElementById('expand-btn');
+
+    // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbz2ooGzDOuEm-VqcJ3DEj6xsHS2b1O2zCe0Ah0gKqO26EF0qViKpbJe8gzgwDFL-H61/exec";
+
+    // 0. データの読込・保存
+    async function loadData() {
+        if (!API_URL) return;
+        setSyncStatus('saving', '読込中...');
+        try {
+            const res = await fetch(API_URL);
+            const json = await res.json();
+            if (json.status === "success" && json.data) {
+                seatData = json.data;
+                // 反映
+                Object.entries(seatData).forEach(([id, group]) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.classList.add(`group-${group}`);
+                        el.dataset.color = group; // data-color属性も設定
+                    }
+                });
+                updateSummary();
+            }
+            setSyncStatus('idle', '同期完了');
+        } catch (e) {
+            console.error(e);
+            setSyncStatus('error', '読込失敗');
+        }
     }
 
-    50% {
-        opacity: 1;
+    let saveTimeout = null;
+    function requestSave() {
+        if (!API_URL) return;
+        setSyncStatus('saving', '保存中...');
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveData, 2000); // 2秒後に保存（頻度を抑える）
     }
 
-    100% {
-        opacity: 0.6;
-    }
-}
-
-/* 集計行の色分け用（ドット表示などの工夫も可能だが今回はシンプルに文字のみ） */
-
-/* スマホ向け調整 */
-@media (max-width: 1024px) {
-    body {
-        padding: 10px;
-    }
-
-    header h1 {
-        font-size: 1.2rem;
-        margin: 5px 0;
+    async function saveData() {
+        try {
+            await fetch(API_URL, {
+                method: "POST",
+                mode: "no-cors", // GASへのPOSTは CORS 制限回避のため no-cors が簡便
+                body: JSON.stringify(seatData)
+            });
+            setSyncStatus('idle', '保存完了');
+        } catch (e) {
+            console.error(e);
+            setSyncStatus('error', '保存失敗');
+        }
     }
 
-    main {
-        padding: 10px;
+    function setSyncStatus(type, text) {
+        if (!syncStatus) return;
+        syncStatus.className = `sync-${type}`;
+        syncStatus.textContent = text;
     }
 
-    #status-message {
-        gap: 5px;
-        padding: 5px;
-        justify-content: flex-end; /* flex-start -> flex-end */
-        flex-direction: row;
+    // 1. 座席の生成
+    function createSeats() {
+        // グリッドをクリア (再生成用)
+        seatGrid.innerHTML = '';
+        const currentTotalCols = isExpanded ? TOTAL_COLS + COLS_PER_BLOCK : TOTAL_COLS;
 
-        align-items: center;
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        font-size: 11px;
-        margin-top: 5px;
+        // 列番号のヘッダーを表示 (上端)
+        const emptyCorner = document.createElement('div');
+        emptyCorner.className = 'grid-label';
+        seatGrid.appendChild(emptyCorner);
+
+        for (let c_index = 1; c_index <= currentTotalCols; c_index++) {
+            const colLabel = document.createElement('div');
+            colLabel.className = 'grid-label col-label';
+            colLabel.textContent = 88 + c_index;
+            seatGrid.appendChild(colLabel);
+        }
+
+        for (let r = 1; r <= ROWS; r++) {
+            const rowLabel = document.createElement('div');
+            rowLabel.className = 'grid-label row-label';
+            rowLabel.textContent = (ROWS - r + 1);
+            seatGrid.appendChild(rowLabel);
+
+            // ブロックのリスト
+            const blocks = isExpanded ? [1, 2, 3] : [1, 2];
+            blocks.forEach(bId => {
+                for (let c = 1; c <= COLS_PER_BLOCK; c++) {
+                    const seatId = `block${bId}-r${r}-c${c}`;
+                    const seat = createSeatElement(seatId);
+
+                    // 既存データの反映
+                    if (seatData[seatId]) {
+                        seat.classList.add(`group-${seatData[seatId]}`);
+                        seat.dataset.color = seatData[seatId];
+                    }
+                    
+                    seatGrid.appendChild(seat);
+                }
+            });
+        }
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // 初期化が終わったら読込 (初回のみ)
+        if (Object.keys(seatData).length === 0) {
+            loadData();
+        }
     }
 
-    #podium-btn, #expand-btn, #lock-btn, #clear-all-btn {
-        position: static;
-        padding: 4px 8px;
-        font-size: 11px;
-        flex-shrink: 0;
+    function createSeatElement(id) {
+        const div = document.createElement('div');
+        div.className = 'seat';
+        div.id = id;
+        div.title = id;
+
+        // --- マウス操作 ---
+        div.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            handleSeatClick(id, true); // 開始フラグ
+        });
+
+        div.addEventListener('mouseenter', () => {
+            if (isDragging) {
+                handleSeatClick(id);
+            }
+        });
+
+        // --- タッチ操作 (スマホ) ---
+        div.addEventListener('touchstart', (e) => {
+            // タッチ開始時にマウスイベントの擬似発火を防止
+            e.preventDefault();
+            isDragging = true;
+            const touch = e.touches[0];
+            lastX = touch.clientX;
+            lastY = touch.clientY;
+            handleSeatClick(id, true);
+        }, { passive: false });
+
+        return div;
     }
 
-    #sync-status {
-        font-size: 9px;
-        flex-shrink: 0;
+    // 指定された座標の座席を処理
+    function processPoint(x, y) {
+        const target = document.elementFromPoint(x, y);
+        if (target && target.classList.contains('seat')) {
+            handleSeatClick(target.id);
+        }
     }
 
-    .group-selector {
-        gap: 5px;
-        justify-content: center;
+    // 前回の座標から現在の座標までを補完して処理
+    function processLine(x1, y1, x2, y2) {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        const steps = Math.ceil(dist / 10); // 10pxごとにサンプリング
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = x1 + (x2 - x1) * t;
+            const y = y1 + (y2 - y1) * t;
+            processPoint(x, y);
+        }
     }
 
-    .group-btn {
-        padding: 8px 12px;
-        min-width: 80px;
-        font-size: 13px;
+    // タッチムーブ（補完処理付き）
+    seatGrid.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const currX = touch.clientX;
+        const currY = touch.clientY;
+
+        if (lastX !== null && lastY !== null) {
+            processLine(lastX, lastY, currX, currY);
+        } else {
+            processPoint(currX, currY);
+        }
+
+        lastX = currX;
+        lastY = currY;
+    }, { passive: false });
+
+    // ドラッグ状態のリセット
+    function resetDrag() {
+        isDragging = false;
+        lastProcessedSeatId = null;
+        dragAction = null;
+        lastX = null;
+        lastY = null;
     }
 
-    .count {
-        font-size: 12px;
-        padding: 1px 6px;
+    window.addEventListener('mouseup', resetDrag);
+    window.addEventListener('touchend', resetDrag);
+    window.addEventListener('touchcancel', resetDrag);
+
+    // 2. グループ選択
+    groupButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.dataset.group;
+
+            // アクティブ表示の切り替え
+            groupButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentGroup = group;
+            currentGroupDisplay.textContent = GROUP_NAMES[group] || 'なし';
+
+            // ロック解除（色を選択した時点で自動的にロック解除）
+            if (lockBtn) {
+                lockBtn.classList.remove('locked');
+                lockBtn.textContent = 'ロック';
+            }
+
+            // Aグループ特有の表示制御
+            if (group === 'A') {
+                specialInputA.classList.remove('hidden');
+                // 少し遅延させて確実にフォーカスを当てる
+                setTimeout(() => colCountInputA.focus(), 10);
+            } else {
+                specialInputA.classList.add('hidden');
+            }
+        });
+    });
+
+    // 3. 座席操作処理 (B-H用)
+    function handleSeatClick(seatId, isStartOfAction = false) {
+        // ロック状態（currentGroupがnullまたは空）の場合は何もしない
+        if (!currentGroup || currentGroup === 'A') return;
+
+        // 同一ドラッグ内（および瞬間の重複イベント）での同一マスの多重処理を徹底防止
+        // これにより、タッチとマウスの二重発火による意図しないトグル（反転）を防ぐ
+        if (seatId === lastProcessedSeatId) return;
+
+        const seatEl = document.getElementById(seatId);
+        if (!seatEl) return;
+
+        // 現在のマスの色を取得（data-color属性から）
+        const currentColor = seatEl.dataset.color || '';
+
+        // ドラッグ開始時に「塗る」か「消す」かを決定
+        if (isStartOfAction) {
+            isDragging = true;
+            // 選択中の色と同じ場合は「消す」、空の場合は「塗る」
+            dragAction = (currentColor === currentGroup) ? 'erase' : 'paint';
+        }
+
+        // ドラッグ中かつモードが決まっている場合のみ処理
+        if (!isDragging || !dragAction) return;
+
+        lastProcessedSeatId = seatId;
+
+        if (dragAction === 'erase') {
+            // 消しゴムモード: 選択中の色と同じ場合のみ消す
+            if (currentColor === currentGroup) {
+                updateSeat(seatId, null);
+            }
+        } else {
+            // 塗りモード: 空のマスのみ塗る（他の色が塗られている場合はロック）
+            if (currentColor === '') {
+                updateSeat(seatId, currentGroup);
+            }
+            // currentColor !== '' && currentColor !== currentGroup の場合は何もしない（ロック）
+        }
     }
 
-    .total-bh {
-        border-right: 2px solid #ddd;
-        /* 折り返した行で、左にあるボタンとの境界を作る */
-        border-left: none;
-        margin-left: 0;
-        margin-right: 5px;
-        padding-left: 0;
-        padding-right: 10px;
-        order: 99;
-        /* スマホではフローの最後（左下）に配置 */
+    // ロックボタンの処理
+    if (lockBtn) {
+        lockBtn.addEventListener('click', () => {
+            // ロック状態に入る
+            currentGroup = null;
+            currentGroupDisplay.textContent = 'ロック中';
+
+            // すべてのグループボタンの選択を解除
+            groupButtons.forEach(b => b.classList.remove('active'));
+
+            // Aグループの入力欄を非表示
+            specialInputA.classList.add('hidden');
+
+            // ロックボタンの表示を変更
+            lockBtn.classList.add('locked');
+            lockBtn.textContent = 'ロック中';
+        });
     }
 
-    .seat-grid {
-        /* ラベル1+22列+通路1+22列 = 46列 */
-        /* グリッド全体を縮小 */
-        grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px);
-        grid-template-rows: 20px repeat(9, 12px); /* 40px -> 20px: 余白を削除 */
-        gap: 2px;
-        justify-content: start; /* center -> start */
-        min-width: 560px; /* 約 (20 + 44*12 + 12) + gap */
+    // すべての座席をクリア
+    function clearAllSeats() {
+        if (!confirm('すべての座席選択を解除してもよろしいですか？')) return;
 
-        /* 横幅固定を解除 */
+        // データのリセット
+        seatData = {};
+
+        // 表示のリセット
+        const seats = document.querySelectorAll('.seat');
+        seats.forEach(seat => {
+            ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seat.classList.remove(`group-${g}`));
+            seat.dataset.color = ''; // data-color属性もクリア
+        });
+
+        updateSummary();
+        requestSave();
     }
 
-    .seat {
-        width: 12px;
-        height: 12px;
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            clearAllSeats();
+        });
     }
 
-    .grid-label {
-        font-size: 8px; /* スマホでも見やすいよう極小サイズに設定 */
-        letter-spacing: -0.5px;
+    // 拡張ボタンの処理
+    if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+
+            if (isExpanded) {
+                expandBtn.textContent = '縮小';
+                seatGrid.classList.add('expanded');
+            } else {
+                expandBtn.textContent = '拡張';
+                seatGrid.classList.remove('expanded');
+                requestSave();
+
+                // 縮小時、スクロールを左端に戻す
+                const container = document.getElementById('seat-map-container');
+                if (container) {
+                    container.scrollTo({
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // 再描画
+            createSeats();
+            updateSummary();
+
+            // 拡張時のみ、スクロールを右端に寄せる
+            if (isExpanded) {
+                const container = document.getElementById('seat-map-container');
+                if (container) {
+                    const scrollToRight = () => {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                container.scrollTo({
+                                    left: container.scrollWidth,
+                                    behavior: 'smooth'
+                                });
+                            });
+                        });
+                    };
+                    scrollToRight();
+                }
+            }
+        });
     }
 
-    .col-label {
-        height: 20px; /* 40px -> 20px: 余白を削減 */
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding-bottom: 2px; /* 5px -> 2px: さらに隙間を詰める */
-        background: transparent; /* 背景（グレー）を削除 */
-        border-radius: 0;
-        box-sizing: border-box;
+    // 座席の状態を更新
+    function updateSeat(seatId, group) {
+        const seatEl = document.getElementById(seatId);
+        if (!seatEl) return;
+
+        // 既存のクラスを削除 ('G'も含めて全削除)
+        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seatEl.classList.remove(`group-${g}`));
+
+        // 新しいクラスを追加
+        if (group) {
+            seatEl.classList.add(`group-${group}`);
+            seatEl.dataset.color = group; // data-color属性に色を保存
+            seatData[seatId] = group;
+        } else {
+            seatEl.dataset.color = ''; // data-color属性をクリア
+            delete seatData[seatId];
+        }
+
+        updateSummary();
+        requestSave();
     }
 
-    /* 22列目と23列目の間の通路位置調整 */
-    .seat-grid:not(.expanded)>div:nth-child(45n+24) {
-        grid-column-start: 25;
+    // 4. Aグループ専用: 列数入力による一括処理
+    function runGroupAFill() {
+        const colCount = parseInt(colCountInputA.value);
+        if (isNaN(colCount) || colCount < 0) return;
+
+        // 全体の列数を取得
+        const currentTotalCols = isExpanded ? TOTAL_COLS + COLS_PER_BLOCK : TOTAL_COLS;
+
+        for (let r = 1; r <= ROWS; r++) {
+            for (let c_index = 1; c_index <= currentTotalCols; c_index++) {
+                let seatId;
+                if (c_index <= COLS_PER_BLOCK) {
+                    seatId = `block1-r${r}-c${c_index}`;
+                } else if (c_index <= COLS_PER_BLOCK * 2) {
+                    seatId = `block2-r${r}-c${c_index - COLS_PER_BLOCK}`;
+                } else {
+                    seatId = `block3-r${r}-c${c_index - COLS_PER_BLOCK * 2}`;
+                }
+
+                if (c_index <= colCount) {
+                    updateSeat(seatId, 'A');
+                } else {
+                    if (seatData[seatId] === 'A') {
+                        updateSeat(seatId, null);
+                    }
+                }
+            }
+        }
     }
 
-    .seat-grid.expanded {
-        grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px) 12px repeat(22, 12px);
-        min-width: 836px; /* 約 (20 + 66*12 + 24) + gap */
+    // 入力確定時（エンターキーまたはフォーカスアウト）に実行
+    colCountInputA.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            runGroupAFill();
+            colCountInputA.blur(); // 入力を確定させる
+        }
+    });
+
+    colCountInputA.addEventListener('blur', () => {
+        runGroupAFill();
+    });
+
+    // 5. リアルタイム集計
+    function updateSummary() {
+        const counts = {};
+        GROUPS.forEach(g => counts[g] = 0);
+
+        // 表示されているブロックのみを集計対象にする
+        const activeBlocks = isExpanded ? [1, 2, 3] : [1, 2];
+
+        Object.keys(seatData).forEach(seatId => {
+            const group = seatData[seatId];
+            if (typeof seatId === 'string' && seatId.indexOf('block') === 0) {
+                const blockId = parseInt(seatId.split('-')[0].replace('block', ''));
+                if (activeBlocks.includes(blockId)) {
+                    if (counts[group] !== undefined) {
+                        counts[group]++;
+                    }
+                }
+            }
+        });
+
+        // 各ボタンのカウントを更新
+        let totalBH = 0;
+        GROUPS.forEach(g => {
+            const countEl = document.getElementById(`count-${g}`);
+            if (countEl) {
+                countEl.textContent = counts[g];
+            }
+            if (g !== 'A') {
+                totalBH += counts[g];
+            }
+        });
+
+        // 中央以外合計を更新
+        const totalBHEl = document.getElementById('count-total-BH');
+        if (totalBHEl) {
+            totalBHEl.textContent = totalBH;
+        }
     }
 
-    .seat-grid.expanded>div:nth-child(67n+24) {
-        grid-column-start: 25;
-    }
-
-    .seat-grid.expanded>div:nth-child(67n+46) {
-        grid-column-start: 48;
-    }
-}
-
-
+    // 初期化
+    createSeats();
+    updateSummary();
+});
