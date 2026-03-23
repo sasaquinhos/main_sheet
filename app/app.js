@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let dragAction = null; // 'paint' or 'erase'
     let lastX = null;
     let lastY = null;
+    let isExpanded = false;
 
     const seatGrid = document.getElementById('seat-grid');
     const groupButtons = document.querySelectorAll('.group-btn');
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncStatus = document.getElementById('sync-status');
     const lockBtn = document.getElementById('lock-btn');
     const clearAllBtn = document.getElementById('clear-all-btn');
+    const expandBtn = document.getElementById('expand-btn');
 
     // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
     const API_URL = "https://script.google.com/macros/s/AKfycbz2ooGzDOuEm-VqcJ3DEj6xsHS2b1O2zCe0Ah0gKqO26EF0qViKpbJe8gzgwDFL-H61/exec";
@@ -89,12 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. 座席の生成
     function createSeats() {
+        // グリッドをクリア (再生成用)
+        seatGrid.innerHTML = '';
+        const currentTotalCols = isExpanded ? TOTAL_COLS + COLS_PER_BLOCK : TOTAL_COLS;
+
         // 列番号のヘッダーを表示 (上端)
         const emptyCorner = document.createElement('div');
         emptyCorner.className = 'grid-label';
         seatGrid.appendChild(emptyCorner);
 
-        for (let c_index = 1; c_index <= TOTAL_COLS; c_index++) {
+        for (let c_index = 1; c_index <= currentTotalCols; c_index++) {
             const colLabel = document.createElement('div');
             colLabel.className = 'grid-label col-label';
             colLabel.textContent = 88 + c_index;
@@ -107,24 +113,32 @@ document.addEventListener('DOMContentLoaded', () => {
             rowLabel.textContent = (ROWS - r + 1);
             seatGrid.appendChild(rowLabel);
 
-            for (let c = 1; c <= COLS_PER_BLOCK; c++) {
-                const seatId = `block1-r${r}-c${c}`;
-                const seat = createSeatElement(seatId);
-                seatGrid.appendChild(seat);
-            }
-            for (let c = 1; c <= COLS_PER_BLOCK; c++) {
-                const seatId = `block2-r${r}-c${c}`;
-                const seat = createSeatElement(seatId);
-                seatGrid.appendChild(seat);
-            }
+            // ブロックのリスト
+            const blocks = isExpanded ? [1, 2, 3] : [1, 2];
+            blocks.forEach(bId => {
+                for (let c = 1; c <= COLS_PER_BLOCK; c++) {
+                    const seatId = `block${bId}-r${r}-c${c}`;
+                    const seat = createSeatElement(seatId);
+
+                    // 既存データの反映
+                    if (seatData[seatId]) {
+                        seat.classList.add(`group-${seatData[seatId]}`);
+                        seat.dataset.color = seatData[seatId];
+                    }
+                    
+                    seatGrid.appendChild(seat);
+                }
+            });
         }
 
         window.addEventListener('mouseup', () => {
             isDragging = false;
         });
 
-        // 初期化が終わったら読込
-        loadData();
+        // 初期化が終わったら読込 (初回のみ)
+        if (Object.keys(seatData).length === 0) {
+            loadData();
+        }
     }
 
     function createSeatElement(id) {
@@ -326,6 +340,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 拡張ボタンの処理
+    if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+
+            if (isExpanded) {
+                expandBtn.textContent = '縮小';
+                seatGrid.classList.add('expanded');
+            } else {
+                expandBtn.textContent = '拡張';
+                seatGrid.classList.remove('expanded');
+                requestSave();
+
+                // 縮小時、スクロールを左端に戻す
+                const container = document.getElementById('seat-map-container');
+                if (container) {
+                    container.scrollTo({
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // 再描画
+            createSeats();
+            updateSummary();
+
+            // 拡張時のみ、スクロールを右端に寄せる
+            if (isExpanded) {
+                const container = document.getElementById('seat-map-container');
+                if (container) {
+                    const scrollToRight = () => {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                container.scrollTo({
+                                    left: container.scrollWidth,
+                                    behavior: 'smooth'
+                                });
+                            });
+                        });
+                    };
+                    scrollToRight();
+                }
+            }
+        });
+    }
+
     // 座席の状態を更新
     function updateSeat(seatId, group) {
         const seatEl = document.getElementById(seatId);
@@ -353,14 +414,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const colCount = parseInt(colCountInputA.value);
         if (isNaN(colCount) || colCount < 0) return;
 
-        // 全体の列は 1〜44
+        // 全体の列数を取得
+        const currentTotalCols = isExpanded ? TOTAL_COLS + COLS_PER_BLOCK : TOTAL_COLS;
+
         for (let r = 1; r <= ROWS; r++) {
-            for (let c_index = 1; c_index <= TOTAL_COLS; c_index++) {
+            for (let c_index = 1; c_index <= currentTotalCols; c_index++) {
                 let seatId;
                 if (c_index <= COLS_PER_BLOCK) {
                     seatId = `block1-r${r}-c${c_index}`;
-                } else {
+                } else if (c_index <= COLS_PER_BLOCK * 2) {
                     seatId = `block2-r${r}-c${c_index - COLS_PER_BLOCK}`;
+                } else {
+                    seatId = `block3-r${r}-c${c_index - COLS_PER_BLOCK * 2}`;
                 }
 
                 if (c_index <= colCount) {
@@ -391,9 +456,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const counts = {};
         GROUPS.forEach(g => counts[g] = 0);
 
-        Object.values(seatData).forEach(group => {
-            if (counts[group] !== undefined) {
-                counts[group]++;
+        // 表示されているブロックのみを集計対象にする
+        const activeBlocks = isExpanded ? [1, 2, 3] : [1, 2];
+
+        Object.keys(seatData).forEach(seatId => {
+            const group = seatData[seatId];
+            if (typeof seatId === 'string' && seatId.indexOf('block') === 0) {
+                const blockId = parseInt(seatId.split('-')[0].replace('block', ''));
+                if (activeBlocks.includes(blockId)) {
+                    if (counts[group] !== undefined) {
+                        counts[group]++;
+                    }
+                }
             }
         });
 
@@ -409,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // B～H合計を更新
+        // 中央以外合計を更新
         const totalBHEl = document.getElementById('count-total-BH');
         if (totalBHEl) {
             totalBHEl.textContent = totalBH;
