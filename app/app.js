@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lockBtn = document.getElementById('lock-btn');
     const clearAllBtn = document.getElementById('clear-all-btn');
     const expandBtn = document.getElementById('expand-btn');
+    const seatMapContainer = document.getElementById('seat-map-container');
+    const scrollSlider = document.getElementById('scroll-slider');
 
     // --- Web化対応: API設定 (GAS デプロイ後に URL を差し替えてください) ---
     const API_URL = "https://script.google.com/macros/s/AKfycbz2ooGzDOuEm-VqcJ3DEj6xsHS2b1O2zCe0Ah0gKqO26EF0qViKpbJe8gzgwDFL-H61/exec";
@@ -130,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        updateSliderRange();
 
         window.addEventListener('mouseup', () => {
             isDragging = false;
@@ -488,6 +492,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalBHEl) {
             totalBHEl.textContent = totalBH;
         }
+    }
+
+    // --- スライダーバー関連 ---
+    function updateSliderRange() {
+        if (!scrollSlider || !seatMapContainer) return;
+
+        // コンテナのスクロール可能な最大値を設定
+        const maxScroll = seatMapContainer.scrollWidth - seatMapContainer.clientWidth;
+        scrollSlider.max = maxScroll > 0 ? maxScroll : 0;
+        scrollSlider.value = seatMapContainer.scrollLeft;
+    }
+
+    if (scrollSlider) {
+        // スライダー操作時にスクロールを同期
+        scrollSlider.addEventListener('input', () => {
+            if (seatMapContainer) {
+                seatMapContainer.scrollLeft = scrollSlider.value;
+            }
+        });
+    }
+
+    if (seatMapContainer) {
+        // コンテナを直接スクロール（スワイプ等）した時にスライダーを同期
+        seatMapContainer.addEventListener('scroll', () => {
+            if (scrollSlider) {
+                scrollSlider.value = seatMapContainer.scrollLeft;
+            }
+        });
+
+        // ウィンドウのリサイズ時にも範囲を更新
+        window.addEventListener('resize', updateSliderRange);
     }
 
     // 初期化
