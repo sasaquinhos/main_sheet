@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROWS = 9;
     const COLS_PER_BLOCK = 22;
     const TOTAL_COLS = COLS_PER_BLOCK * 2;
-    const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'H'];
+    const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'H', 'J'];
     const GROUP_NAMES = {
         'A': '中央',
         'B': '連合(前)',
@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'D': 'ボアソルチ',
         'E': '連合(後)',
         'F': 'ショコラ',
-        'H': 'kyu'
+        'H': 'kyu',
+        'J': 'お立ち台'
     };
 
     let currentGroup = null;
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lockBtn = document.getElementById('lock-btn');
     const clearAllBtn = document.getElementById('clear-all-btn');
     const expandBtn = document.getElementById('expand-btn');
+    const podiumBtn = document.getElementById('podium-btn');
     const seatMapContainer = document.getElementById('seat-map-container');
     const scrollSlider = document.getElementById('scroll-slider');
 
@@ -260,6 +262,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // お立ち台ボタンの処理
+    if (podiumBtn) {
+        podiumBtn.addEventListener('click', () => {
+            currentGroup = 'J';
+            currentGroupDisplay.textContent = 'お立ち台';
+
+            // 他のボタンのアクティブ表示を解除
+            groupButtons.forEach(b => b.classList.remove('active'));
+            specialInputA.classList.add('hidden');
+
+            if (lockBtn) {
+                lockBtn.classList.remove('locked');
+                lockBtn.textContent = 'ロック';
+            }
+        });
+    }
+
     // 3. 座席操作処理 (B-H用)
     function handleSeatClick(seatId, isStartOfAction = false) {
         // ロック状態（currentGroupがnullまたは空）の場合は何もしない
@@ -330,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 表示のリセット
         const seats = document.querySelectorAll('.seat');
         seats.forEach(seat => {
-            ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seat.classList.remove(`group-${g}`));
+            GROUPS.forEach(g => seat.classList.remove(`group-${g}`));
             seat.dataset.color = ''; // data-color属性もクリア
         });
 
@@ -396,8 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const seatEl = document.getElementById(seatId);
         if (!seatEl) return;
 
-        // 既存のクラスを削除 ('G'も含めて全削除)
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(g => seatEl.classList.remove(`group-${g}`));
+        // 既存のクラスを削除
+        GROUPS.forEach(g => seatEl.classList.remove(`group-${g}`));
 
         // 新しいクラスを追加
         if (group) {
