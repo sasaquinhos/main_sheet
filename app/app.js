@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'D': 'ボアソルチ',
         'E': '連合(後)',
         'F': 'ショコラ',
-        'H': 'バースト'
+        'H': 'kyu'
     };
 
     let currentGroup = null;
