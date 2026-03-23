@@ -21,6 +21,8 @@
     /* 紫 */
     --color-h: #e67e22;
     /* オレンジ (元はピンク) */
+    --color-j: #444444;
+    /* お立ち台: 濃いグレー */
     --color-none: #ecf0f1;
     /* 未選択 */
 }
@@ -290,6 +292,10 @@ main {
     background-color: var(--color-h);
 }
 
+.seat.group-J {
+    background-color: var(--color-j);
+}
+
 /* 集計テーブル */
 #summary-container {
     max-width: 600px;
@@ -322,6 +328,25 @@ main {
     position: relative;
     padding: 10px 80px;
     /* ボタン分の余白を確保 */
+    padding-right: 320px; /* ボタン4つ分 (80*4) の余白 */
+}
+
+#podium-btn {
+    position: absolute;
+    right: 230px;
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid var(--color-j);
+    color: white;
+    background: var(--color-j);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+#podium-btn:hover {
+    filter: brightness(1.2);
 }
 
 #sync-status {
@@ -432,30 +457,19 @@ main {
 @media (max-width: 768px) {
     #status-message {
         gap: 8px;
-        padding: 10px 170px 10px 10px; /* 110 -> 170 */
-        justify-content: center;
+        padding: 10px 10px;
+        justify-content: flex-end;
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
-    #expand-btn {
+    #podium-btn, #expand-btn, #lock-btn, #clear-all-btn {
+        position: static;
         padding: 4px 8px;
         font-size: 11px;
-        right: 110px;
+        flex-shrink: 0;
         z-index: 100;
-    }
-
-    #lock-btn {
-        padding: 4px 8px;
-        font-size: 11px;
-        right: 55px;
-        z-index: 100;
-    }
-
-    #clear-all-btn {
-        padding: 4px 10px;
-        font-size: 11px;
-        right: 5px;
-        z-index: 100;
-        /* 確実に最前面へ */
     }
 
     .group-selector {
