@@ -285,9 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ロックボタンの処理
     if (lockBtn) {
-        lockBtn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-
+        lockBtn.addEventListener('click', () => {
             // ロック状態に入る
             currentGroup = null;
             currentGroupDisplay.textContent = 'ロック中';
@@ -323,9 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (clearAllBtn) {
-        // PC/スマホ両方で確実に反応させるため pointerdown を使用
-        clearAllBtn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
+        clearAllBtn.addEventListener('click', () => {
             clearAllSeats();
         });
     }
