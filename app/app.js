@@ -390,21 +390,21 @@ document.addEventListener('DOMContentLoaded', () => {
             createSeats();
             updateSummary();
 
-            // 拡張時のみ、スクロールを右端に寄せる
+            // 拡張時のみ、スクロールを左端に寄せる（既存エリアを維持）
             if (isExpanded) {
                 const container = document.getElementById('seat-map-container');
                 if (container) {
-                    const scrollToRight = () => {
+                    const scrollToLeft = () => {
                         requestAnimationFrame(() => {
                             requestAnimationFrame(() => {
                                 container.scrollTo({
-                                    left: container.scrollWidth,
+                                    left: 0,
                                     behavior: 'smooth'
                                 });
                             });
                         });
                     };
-                    scrollToRight();
+                    scrollToLeft();
                 }
             }
         });
