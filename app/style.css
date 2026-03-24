@@ -194,7 +194,7 @@ main {
     grid-template-columns: 30px repeat(22, 20px) 20px repeat(22, 20px);
     grid-template-rows: 25px repeat(9, 20px);
     gap: 4px;
-    justify-content: center;
+    justify-content: start; /* center -> start: オーバーフロー時に左側が消えるのを防ぐ */
     min-width: 1150px;
     touch-action: none;
     /* スマホでのドラッグ中のスクロールを防止 */
@@ -207,6 +207,11 @@ main {
     grid-template-columns: 30px repeat(22, 20px) 20px repeat(22, 20px) 20px repeat(22, 20px);
     min-width: 1650px;
     justify-content: start;
+}
+
+/* ロック中は手動スクロールを許可 */
+.seat-grid.is-locked {
+    touch-action: auto;
 }
 
 /* ラベルのスタイル */
@@ -498,8 +503,8 @@ main {
         grid-template-columns: 20px repeat(22, 12px) 12px repeat(22, 12px);
         grid-template-rows: 35px repeat(9, 12px);
         gap: 2px;
-        min-width: unset;
-        /* 横幅固定を解除 */
+        justify-content: start; /* center -> start */
+        min-width: 560px; /* 約 (20 + 44*12 + 12) + gap */
     }
 
     .seat {
