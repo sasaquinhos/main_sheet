@@ -249,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (lockBtn) {
                 lockBtn.classList.remove('locked');
                 lockBtn.textContent = 'ロック';
+                seatGrid.classList.remove('is-locked');
             }
 
             // Aグループ特有の表示制御
@@ -275,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (lockBtn) {
                 lockBtn.classList.remove('locked');
                 lockBtn.textContent = 'ロック';
+                seatGrid.classList.remove('is-locked');
             }
         });
     }
@@ -336,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // ロックボタンの表示を変更
             lockBtn.classList.add('locked');
             lockBtn.textContent = 'ロック中';
+            seatGrid.classList.add('is-locked');
         });
     }
 
